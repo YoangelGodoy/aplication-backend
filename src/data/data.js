@@ -52,14 +52,16 @@ export const data = {
         }
       ],
       drivers: [
-        { id: "1", 
+        { 
+          id: "1", 
           name: "Juan", 
           lastname: "Pérez", 
           phone: "123456789", 
           municipio: "Municipio A", 
           status: "activo" 
         },
-        { id: "2", 
+        { 
+          id: "2", 
           name: "María", 
           lastname: "Gómez", 
           phone: "987654321", 

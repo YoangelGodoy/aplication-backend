@@ -16,7 +16,7 @@ const createTowTruck = async (req, res) => {
         }
 
         const newTruck = {
-            id: data.towTrucks.length + 1,
+            id: (data.towTrucks.length + 1).toString(),
             modelo,
             marca,
             año,

@@ -9,7 +9,7 @@ const createTowTruck = async (req, res) => {
             return res.status(400).json({ ok: false, msg: "Missing required fields: modelo, marca, año, tipo, status" });
         }
 
-        // Validar tipo
+        // Validar tipoo
         const validTypes = ['gancho', 'plataforma'];
         if (!validTypes.includes(tipo)) {
             return res.status(400).json({ ok: false, msg: "Invalid tipo. Must be 'gancho' or 'plataforma'" });

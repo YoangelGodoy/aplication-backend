@@ -1,6 +1,6 @@
 import { data } from "../data/data.js";
 
-// /api/v1/towCreate
+// /api/v1/towCreatee
 const createTowTruck = async (req, res) => {
     try {
         const { modelo, marca, año, tipo, status } = req.body;

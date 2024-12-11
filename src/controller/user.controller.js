@@ -3,7 +3,7 @@ import { findUserByEmail } from '../data/data.js';
 import { data } from "../data/data.js";
 import jwt from 'jsonwebtoken';
 
-// /api/v1/users/register
+// /api/v1/users/registerr
 const register = async (req, res) => {
     try {
         const {  name, lastname, email, password, phone} = req.body

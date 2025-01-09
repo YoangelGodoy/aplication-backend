@@ -2,7 +2,7 @@ import bcryptjs from 'bcryptjs'
 import { UserModel } from "../models/user.model.js";
 import jwt from 'jsonwebtoken';
 
-// /api/v1/users/register
+// /api/v1/users/registerr
 const register = async (req, res) => {
     try {
         console.log(req.body)

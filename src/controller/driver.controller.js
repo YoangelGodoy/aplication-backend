@@ -1,31 +1,29 @@
-import { data } from "../data/data.js";
+import { DriverModel } from '../models/driver.model.js'; 
 
-// /api/v1/driverCreate
+// api/v1/driverCreate
 const createDriver = async (req, res) => {
     try {
-        const { name, lastname, phone, municipio, status } = req.body;
-
-        if (!name || !lastname || !phone || !municipio || !status) {
-            return res.status(400).json({ ok: false, msg: "Missing required fields: name, lastname, phone, municipio, status" });
+        const {id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver } = req.body;
+        console.log("aqui 1")
+        if (!id_driver || !name_driver || !lastname_driver || !phone || !fkid_municipality || !status_driver) {
+            return res.status(400).json({ ok: false, msg: "Missing required fields: name_driver, lastname_driver, phone, municipality_id, status_driver" });
         }
-
+        console.log("aqui 2")
         // Validar status
         const validStatuses = ['activo', 'inactivo'];
-        if (!validStatuses.includes(status)) {
+        if (!validStatuses.includes(status_driver)) {
             return res.status(400).json({ ok: false, msg: "Invalid status. Must be 'activo' or 'inactivo'" });
         }
-
-        const newDriver = {
-            id: (data.drivers.length + 1).toString(),
-            name,
-            lastname,
+        console.log("aqui 3")
+        const newDriver = await DriverModel.createDriver({
+            id_driver,
+            name_driver,
+            lastname_driver,
             phone,
-            municipio,
-            status,
-        };
-
-        data.drivers.push(newDriver);
-
+            fkid_municipality,
+            status_driver
+        });
+        console.log("aqui 4")
         return res.status(201).json({ ok: true, msg: "Driver registered successfully", driver: newDriver });
     } catch (error) {
         console.log(error);
@@ -37,11 +35,11 @@ const createDriver = async (req, res) => {
     }
 }
 
-// /api/v1/driver/:id
+// api/v1/driver/:id
 const getDriver = async (req, res) => {
     try {
         const { id } = req.params;
-        const driver = data.drivers.find(driver => driver.id === id);
+        const driver = await DriverModel.findDriverById(id);
 
         if (!driver) {
             return res.status(404).json({ ok: false, msg: "Driver not found" });
@@ -49,7 +47,7 @@ const getDriver = async (req, res) => {
 
         return res.json({
             ok: true,
-            msg: driver
+            driver
         });
     } catch (error) {
         console.log(error);
@@ -60,12 +58,13 @@ const getDriver = async (req, res) => {
     }
 }
 
-// /api/v1/GetAllDrivers
+// /api/v1/Drivers
 const listDrivers = async (req, res) => {
     try {
+        const drivers = await DriverModel.getAllDrivers();
         return res.json({
             ok: true,
-            drivers: data.drivers
+            drivers
         });
     } catch (error) {
         console.log(error);
@@ -76,32 +75,28 @@ const listDrivers = async (req, res) => {
     }
 }
 
-// /api/v1/driversUpdate/:id
+// /api/v1/driverUpdate/:id
 const updateDriver = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, lastname, phone, municipio, status } = req.body;
-
-        const driverIndex = data.drivers.findIndex(driver => driver.id === id);
-        if (driverIndex === -1) {
-            return res.status(404).json({ ok: false, msg: "Driver not found" });
-        }
+        const { name_driver, lastname_driver, phone, fkid_municipality, status_driver } = req.body;
 
         // Validar status
-        if (status && !['activo', 'inactivo'].includes(status)) {
+        if (status_driver && !['activo', 'inactivo'].includes(status_driver)) {
             return res.status(400).json({ ok: false, msg: "Invalid status. Must be 'activo' or 'inactivo'" });
         }
 
-        const updatedDriver = {
-            ...data.drivers[driverIndex],
-            name: name || data.drivers[driverIndex].name,
-            lastname: lastname || data.drivers[driverIndex].lastname,
-            phone: phone || data.drivers[driverIndex].phone,
-            municipio: municipio || data.drivers[driverIndex].municipio,
-            status: status || data.drivers[driverIndex].status,
-        };
+        const updatedDriver = await DriverModel.updateDriver(id, {
+            name_driver,
+            lastname_driver,
+            phone,
+            fkid_municipality,
+            status_driver
+        });
 
-        data.drivers[driverIndex] = updatedDriver;
+        if (!updatedDriver) {
+            return res.status(404).json({ ok: false, msg: "Driver not found" });
+        }
 
         return res.json({ ok: true, msg: "Driver updated successfully", driver: updatedDriver });
     } catch (error) {
@@ -113,19 +108,20 @@ const updateDriver = async (req, res) => {
     }
 }
 
-// /api/v1/driversDelete/:id
+// /api/v1/driverDelete/:id
 const deleteDriver = async (req, res) => {
     try {
         const { id } = req.params;
-        const driverIndex = data.drivers.findIndex(driver => driver.id === id);
-        
-        if (driverIndex === -1) return res.status(404).json({ ok: false, msg: "Driver not found" });
-
-        data.drivers.splice(driverIndex, 1);
+        const deletedDriver = await DriverModel.deleteDriver(id);
+        console.log("deleteDriver",deletedDriver)
+        console.log("id",id)
+        if (!deletedDriver) {
+            return res.status(404).json({ ok: false, msg: "Driver not found" });
+        }
 
         return res.json({ ok: true, msg: "Driver deleted successfully" });
     } catch (error) {
-        console.log (error);
+        console.log(error);
         return res.status(500).json({
             ok: false,
             message: "Error deleting driver"
@@ -139,4 +135,4 @@ export const DriverController = {
     listDrivers,
     updateDriver,
     deleteDriver
-}
+};

@@ -1,0 +1,79 @@
+import { db } from '../conection/conec.database.js';
+
+// Función para crear un nuevo conductor
+const createDriver = async ({ id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver }) => {
+    const query = {
+        text: `
+        INSERT INTO driver (id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver
+        `,
+        values: [id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver]
+    };
+    const { rows } = await db.query(query);
+    return rows[0];
+};
+
+// Función para encontrar un conductor por su ID
+const findDriverById = async (id_driver) => {
+    const query = {
+        text: `
+        SELECT id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver FROM driver 
+        WHERE id_driver = $1
+        `,
+        values: [id_driver]
+    };
+    const { rows } = await db.query(query);
+    return rows[0]; 
+};
+
+// Función para obtener todos los conductores
+const getAllDrivers = async () => {
+    const query = {
+        text: `
+        SELECT id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver FROM driver
+        `,
+        values: []
+    };
+    const { rows } = await db.query(query);
+    return rows; 
+};
+
+// Función para actualizar un conductor
+const updateDriver = async (id_driver, { name_driver, lastname_driver, phone, fkid_municipality, status_driver }) => {
+    const query = {
+        text: `
+        UPDATE driver
+        SET name_driver = $1, lastname_driver = $2, phone = $3, fkid_municipality = $4, status_driver = $5
+        WHERE id_driver = $6
+        RETURNING id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver
+        `,
+        values: [name_driver, lastname_driver, phone, fkid_municipality, status_driver, id_driver]
+    };
+    const { rows } = await db.query(query);
+    return rows[0]; 
+};
+
+// Función para eliminar un conductor
+const deleteDriver = async (id_driver) => {
+    console.log("Deleting driver with id:", id_driver);
+    const query = {
+        text: `
+        DELETE FROM driver
+        WHERE id_driver = $1
+        RETURNING id_driver
+        `,
+        values: [id_driver]
+    };
+    const { rows } = await db.query(query);
+    console.log("rows_delete:",rows[0])
+    return rows[0]; 
+};
+
+export const DriverModel = {
+    createDriver,
+    findDriverById,
+    getAllDrivers,
+    updateDriver,
+    deleteDriver
+};

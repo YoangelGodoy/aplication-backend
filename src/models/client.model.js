@@ -1,6 +1,6 @@
 import { db } from '../conection/conec.database.js';
 
-// Función para crear un nuevo conductor
+// Función para crear un nuevo cliente
 const createClient = async ({ id, name, lastname, municipality_id, phone }) => {
     const query = {
         text: `
@@ -14,7 +14,7 @@ const createClient = async ({ id, name, lastname, municipality_id, phone }) => {
     return rows[0];
 };
 
-// Función para encontrar un conductor por su ID
+// Función para encontrar un cliente por su ID
 const findClientById = async (id) => {
     const query = {
         text: `
@@ -27,7 +27,7 @@ const findClientById = async (id) => {
     return rows[0]; 
 };
 
-// Función para obtener todos los conductores
+// Función para obtener todos los clientes
 const getAllClients = async () => {
     const query = {
         text: `
@@ -39,7 +39,7 @@ const getAllClients = async () => {
     return rows; 
 };
 
-// Función para actualizar un conductor
+// Función para actualizar un cliente
 const updateClient = async (id, { name, lastname, municipality_id, phone }) => {
     const query = {
         text: `
@@ -54,7 +54,7 @@ const updateClient = async (id, { name, lastname, municipality_id, phone }) => {
     return rows[0]; 
 };
 
-// Función para eliminar un conductor
+// Función para eliminar un cliente
 const deleteClient = async (id) => {
     const query = {
         text: `

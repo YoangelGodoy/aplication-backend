@@ -1,6 +1,6 @@
 import { ClientModel } from '../models/client.model.js'; 
 
-// api/v1/driverCreate
+// api/v1/clientCreate
 const createClient = async (req, res) => {
     try {
         const {id, name, lastname, municipality_id, phone } = req.body;
@@ -8,7 +8,7 @@ const createClient = async (req, res) => {
         if (!id || !name || !lastname  || !municipality_id || !phone) {
             return res.status(400).json({ ok: false, msg: "Missing required fields: name, lastname, phone, municipality_id" });
         }
-        
+
         const newDriver = await ClientModel.createClient({
             id,
             name,
@@ -28,7 +28,7 @@ const createClient = async (req, res) => {
     }
 }
 
-// api/v1/driver/:id
+// api/v1/client/:id
 const getClient = async (req, res) => {
     try {
         const { id } = req.params;
@@ -51,7 +51,7 @@ const getClient = async (req, res) => {
     }
 }
 
-// /api/v1/Drivers
+// /api/v1/clients
 const listClients = async (req, res) => {
     try {
         const clients = await ClientModel.getAllClients();
@@ -95,7 +95,7 @@ const updateClient = async (req, res) => {
     }
 }
 
-// /api/v1/driverDelete/:id
+// /api/v1/clientDelete/:id
 const deleteClient = async (req, res) => {
     try {
         const { id } = req.params;

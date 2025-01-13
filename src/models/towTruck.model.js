@@ -1,6 +1,6 @@
 import { db } from '../conection/conec.database.js';
 
-// Función para crear un nuevo registro de grua
+// Función para crear un nuevo registro de grúa
 const createTowTruck = async ({ id, model_id, status, type}) => {
     const query = {
         text: `
@@ -14,7 +14,7 @@ const createTowTruck = async ({ id, model_id, status, type}) => {
     return rows[0];
 };
 
-// Función para encontrar una grua por su ID
+// Función para encontrar una grúa por su ID
 const findTowTruckById = async (id) => {
     const query = {
         text: `
@@ -27,7 +27,7 @@ const findTowTruckById = async (id) => {
     return rows[0]; 
 };
 
-// Función para obtener todos los registros de gruas
+// Función para obtener todos los registros de grúas
 const getAllTowTruck = async () => {
     const query = {
         text: `
@@ -54,7 +54,7 @@ const updateTowTruck = async (id, { model_id, status, type }) => {
     return rows[0]; 
 };
 
-// Función para eliminar un conductor
+// Función para eliminar una grúa
 const deleteTowTruck = async (id) => {
     const query = {
         text: `

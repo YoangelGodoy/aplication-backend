@@ -3,9 +3,9 @@ import { TowTruckController } from '../controller/towTruck.controller.js';
 
 const router = Router();
 
-router.post('/towCreate', TowTruckController.createTowTruck);
+router.post('/towTruckCreate', TowTruckController.createTowTruck);
 router.get('/towTruck/:id', TowTruckController.getTowTruck);
-router.get('/GetAllTowtruck', TowTruckController.listTowTrucks);
+router.get('/Towtrucks', TowTruckController.listTowTrucks);
 router.put('/towTruckUpdate/:id', TowTruckController.updateTowTruck);
 router.delete('/towTruckDelete/:id', TowTruckController.deleteTowTruck);
 

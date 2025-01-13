@@ -113,8 +113,7 @@ const deleteDriver = async (req, res) => {
     try {
         const { id } = req.params;
         const deletedDriver = await DriverModel.deleteDriver(id);
-        console.log("deleteDriver",deletedDriver)
-        console.log("id",id)
+        
         if (!deletedDriver) {
             return res.status(404).json({ ok: false, msg: "Driver not found" });
         }

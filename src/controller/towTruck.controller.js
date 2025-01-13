@@ -1,30 +1,28 @@
-import { data } from "../data/data.js";
+import { towTruckModel } from "../models/towTruck.model.js";
 
 // /api/v1/towCreateee
 const createTowTruck = async (req, res) => {
     try {
-        const { modelo, marca, año, tipo, status } = req.body;
+        const { id, model_id, status, type} = req.body;
 
-        if (!modelo || !marca || !año || !tipo || !status) {
-            return res.status(400).json({ ok: false, msg: "Missing required fields: modelo, marca, año, tipo, status" });
+        if (!id, !model_id || !status || !type) {
+            return res.status(400).json({ ok: false, msg: "Missing required fields: id, model, status, type" });
         }
 
         // Validar tipoo
         const validTypes = ['gancho', 'plataforma'];
-        if (!validTypes.includes(tipo)) {
+        if (!validTypes.includes(type.toLowerCase())) {
             return res.status(400).json({ ok: false, msg: "Invalid tipo. Must be 'gancho' or 'plataforma'" });
         }
 
         const newTruck = {
-            id: (data.towTrucks.length + 1).toString(),
-            modelo,
-            marca,
-            año,
-            tipo,
+            id,
+            model_id,
             status,
+            type,
         };
 
-        data.towTrucks.push(newTruck);
+        const createTow = await towTruckModel.createTowTruck(newTruck);
 
         return res.status(201).json({ ok: true, msg: "Tow truck registered successfully", truck: newTruck });
     } catch (error) {
@@ -41,7 +39,7 @@ const createTowTruck = async (req, res) => {
 const getTowTruck = async (req, res) => {
     try {
         const { id } = req.params;
-        const truck = data.towTrucks.find(towTruck => towTruck.id === id);
+        const truck = await towTruckModel.findTowTruckById(id);
 
         if (!truck) {
             return res.status(404).json({ ok: false, msg: "Tow truck not found" });
@@ -63,9 +61,10 @@ const getTowTruck = async (req, res) => {
 // /api/v1/GetAllTowTruck
 const listTowTrucks = async (req, res) => {
     try {
+        const towTrucks = await towTruckModel.getAllTowTruck();
         return res.json({
             ok: true,
-            trucks: data.towTrucks
+            trucks: towTrucks
         });
     } catch (error) {
         console.log(error);
@@ -80,28 +79,23 @@ const listTowTrucks = async (req, res) => {
 const updateTowTruck = async (req, res) => {
     try {
         const { id } = req.params;
-        const { modelo, marca, año, tipo, status } = req.body;
-
-        const truckIndex = data.towTrucks.findIndex(towTruck => towTruck.id === id);
-        if (truckIndex === -1) {
-            return res.status(404).json({ ok: false, msg: "Tow truck not found" });
-        }
+        const { model_id, status, type } = req.body;
 
         // Validar tipo
-        if (tipo && !['gancho', 'plataforma'].includes(tipo)) {
+        if (type && !['gancho', 'plataforma'].includes(type.toLowerCase())) {
             return res.status(400).json({ ok: false, msg: "Invalid tipo. Must be 'gancho' or 'plataforma'" });
         }
 
-        const updatedTruck = {
-            ...data.towTrucks[truckIndex],
-            modelo: modelo || data.towTrucks[truckIndex].modelo,
-            marca: marca || data.towTrucks[truckIndex].marca,
-            año: año || data.towTrucks[truckIndex].año,
-            tipo: tipo || data.towTrucks[truckIndex].tipo,
-            status: status || data.towTrucks[truckIndex].status,
-        };
+        const updatedTruck = await towTruckModel.updateTowTruck(id,{
+            id,
+            model_id,
+            status,
+            type
+        });
 
-        data.towTrucks[truckIndex] = updatedTruck;
+        if(!updatedTruck){
+            return res.status(404).json({ok: false, msg: "Tow truck not found"})
+        }
 
         return res.json({ ok: true, msg: "Tow truck updated successfully", truck: updatedTruck });
     } catch (error) {
@@ -117,11 +111,9 @@ const updateTowTruck = async (req, res) => {
 const deleteTowTruck = async (req, res) => {
     try {
         const { id } = req.params;
-        const truckIndex = data.towTrucks.findIndex(towTruck => towTruck.id === id);
+        const deletedTowtruck = await towTruckModel.deleteTowTruck(id);
         
-        if (truckIndex === -1) return res.status(404).json({ ok: false, msg: "Tow truck not found" });
-
-        data.towTrucks.splice(truckIndex, 1);
+        if (!deletedTowtruck) return res.status(404).json({ ok: false, msg: "Tow truck not found" });
 
         return res.json({ ok: true, msg: "Tow truck deleted successfully" });
     } catch (error) {

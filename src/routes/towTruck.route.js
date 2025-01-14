@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { TowTruckController } from '../controller/towTruck.controller.js';
+import { verifyToken } from "../middelware/jwt.middelware.js";
 
 const router = Router();
+
+router.use(verifyToken);
 
 router.post('/towTruckCreate', TowTruckController.createTowTruck);
 router.get('/towTruck/:id', TowTruckController.getTowTruck);

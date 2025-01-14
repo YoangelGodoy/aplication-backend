@@ -7,6 +7,15 @@ const router = Router()
 
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
-router.get('/profile', verifyToken, UserController.profile);
+
+router.use(verifyToken);
+
+router.get('/logout', UserController.logoutUser);
+router.get('/profile', UserController.profile);
+router.post('/resetPassword', UserController.resetPassword);
+router.get('/users', UserController.usersList);
+router.get('/user/:id', UserController.getUser);
+router.put('/userUpdate/:id', UserController.userUpdate);
+router.delete('/delete/:id', UserController.userDelete);
 
 export  default router;

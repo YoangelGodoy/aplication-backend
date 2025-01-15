@@ -7,12 +7,12 @@ const router = Router()
 
 router.post('/register', UserController.register);
 router.post('/login', UserController.login);
+router.post('/resetPassword', UserController.resetPassword);
 
 router.use(verifyToken);
 
 router.get('/logout', UserController.logoutUser);
 router.get('/profile', UserController.profile);
-router.post('/resetPassword', UserController.resetPassword);
 
 router.use(verifyAdmin);
 

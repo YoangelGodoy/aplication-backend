@@ -25,7 +25,7 @@ const register = async (req, res) => {
         
         const salt = await bcryptjs.genSalt(10)
         
-        const hashedPassword = await bcryptjs.hash(password, salt)
+        const hashedPassword = await bcryptjs.hash(password, salt);
         const hashedAnswer1 = await bcryptjs.hash(answer1, 10);
         const hashedAnswer2 = await bcryptjs.hash(answer2, 10);
 
@@ -237,9 +237,8 @@ const usersList = async (req, res) =>{
 const userDelete = async (req,res) =>{
     try{
         const { id } = req.params;
-        console.log("id:",id)
         const userdeleted = await UserModel.userDelete(id);
-        console.log("userdeleted:", userdeleted)
+
         if (!userdeleted) {
             return res.status(404).json({ ok: false, msg: "user not found" });
         }

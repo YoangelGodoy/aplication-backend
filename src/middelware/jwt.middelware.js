@@ -29,7 +29,7 @@ export const verifyToken = async (req, res, next) => {
 }
 
 export const verifyAdmin = (req, res, next) => {
-    if (req.rol_id === 6) {
+    if (req.rol_id === 4) {
         return next()
     }
 
@@ -37,7 +37,7 @@ export const verifyAdmin = (req, res, next) => {
 }
 
 export const verifyAsist = (req, res, next) => {
-    if (req.rol_id === 7 || req.rol_id === 6) {
+    if (req.rol_id === 5 || req.rol_id === 4) {
         return next()
     }
     return res.status(403).json({ error: "Unauthorized only driver user" })

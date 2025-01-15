@@ -34,7 +34,13 @@ const register = async (req, res) => {
         
         
         const token = jwt.sign(
-            { email: newUser.email },
+            { 
+                id: userToCreate.id,
+                email: userToCreate.email,
+                name: userToCreate.name,
+                lastname: userToCreate.lastname,
+                rol_id: userToCreate.rol_id 
+            },
             process.env.WORD_SECRET,
             { expiresIn: '1h' }
         );
@@ -82,7 +88,7 @@ const resetPassword = async (req, res) => {
 // /api/v1/users/login
 const login = async (req, res) => {
     try {
-        const {email, password} = req.body;
+        const {email, password } = req.body;
 
         if(!email || ! password){
             return res.status(400).json({ ok: false, msg: "Missing required fields: email, password" })        
@@ -96,11 +102,17 @@ const login = async (req, res) => {
         const comparePassword = await bcryptjs.compare(password, userExist.password)
 
         if(!comparePassword){
-            return res.status(400).json({ok: false, msg: "Password incorrect" })
+            return res.status(400).json({ok: false, msg: "Incorrect data" })
         }
 
         const token = jwt.sign(
-            { email: userExist.email },
+            { 
+                id: userExist.id,
+                email: userExist.email,
+                name: userExist.name,
+                lastname: userExist.lastname,
+                rol_id: userExist.rol_id
+            },
             process.env.WORD_SECRET,
             { expiresIn: '1h' }
         );
@@ -118,17 +130,14 @@ const login = async (req, res) => {
 
 const profile = async (req, res) => {
     try {
-        const user = await UserModel.findUserByEmail(req.email);
+        const user = await UserModel.findUserByEmailSnPassword(req.email);
         
         if (!user) {
             return res.status(404).json({ ok: false, message: "User  not found" });
         }
-
-        // sirve para desestructurar el objeto user y excluir la contraseña
-        const { password, ...userWithoutPassword } = user;
-
+        
         return res.json({
-            user: userWithoutPassword
+            user: user
         });
 
     } catch (error) {
@@ -140,28 +149,34 @@ const profile = async (req, res) => {
     }
 };
 
-const logoutUser = (req, res) => {
-    try{
-        res.clearCookie('token');
-        
-        return res.json({ ok: true, message: "Session closed" });
-    }catch(error){
-        console.log("Logout failed", error);
-        return res.status(500).json({
-            ok: false,
-            msg: "Error logging out",
-            error: error.msg
-        });
-    
+const logoutUser = async (req, res) => {
+    try {
+        const token = req.header('Authorization').replace('Bearer ', '');
+
+        if (!token) {
+            return res.status(401).json({ ok: false, message: "Token not provided" });
+        }
+
+        const decoded = jwt.verify(token, process.env.WORD_SECRET);
+        console.log("decoded:", decoded)
+        const expiresAt = new Date(decoded.exp * 1000); // Convertir a milisegundos
+
+        // Agregar el token a la lista negra
+        const add = await UserModel.addTokenToBlacklist(token, expiresAt);
+
+        return res.json({ ok: true, message: "Sesión cerrada exitosamente" });
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        return res.status(500).json({ ok: false, message: "Error al cerrar sesión" });
     }
 }
  
-const userUpdate = async (req, res)=>{
+const userRolUpdate = async (req, res)=>{
     try{
         const {id} = req.params;
         const {name, lastname, email, id_user, rol_id} = req.body;
         console.log("id:",id)
-        const updateduser = await UserModel.updateUser(id, {
+        const updateduser = await UserModel.updateRolUser(id, {
             name,
             lastname,
             email,
@@ -247,6 +262,6 @@ export const UserController = {
     getUser,
     logoutUser,
     usersList,
-    userUpdate,
+    userRolUpdate,
     userDelete
 }

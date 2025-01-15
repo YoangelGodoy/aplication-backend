@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { UserController } from "../controller/user.controller.js";
-import { verifyToken } from "../middelware/jwt.middelware.js";
+import { verifyAdmin, verifyToken } from "../middelware/jwt.middelware.js";
 
 
 const router = Router()
@@ -13,9 +13,13 @@ router.use(verifyToken);
 router.get('/logout', UserController.logoutUser);
 router.get('/profile', UserController.profile);
 router.post('/resetPassword', UserController.resetPassword);
-router.get('/users', UserController.usersList);
+
+router.use(verifyAdmin);
+
 router.get('/user/:id', UserController.getUser);
-router.put('/userUpdate/:id', UserController.userUpdate);
+router.get('/users', UserController.usersList);
+router.put('/userRolUpdate/:id', UserController.userRolUpdate);
 router.delete('/delete/:id', UserController.userDelete);
+
 
 export  default router;

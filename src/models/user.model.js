@@ -27,11 +27,24 @@ const findUserByEmail = async (email) => {
 
     return row
 }
+const findUserByEmailSnPassword = async (email) => {
+    const query = {
+    text:`
+    SELECT id, name, lastname, email, id_user, rol_id FROM users 
+    WHERE email = $1
+    `,
+    values:[email]
+    }
+    const {rows} = await db.query(query)
+    const row = rows[0]
+
+    return row
+}
 
 const verifySecurityAnswers = async (id, answer1, answer2) => {
     const query = {
         text: `
-        SELECT answer_1, answer_2 FROM users 
+        SELECT security_question_1, security_question_2, answer_1, answer_2 FROM users 
         WHERE id = $1`,
         values: [id],
     };
@@ -75,22 +88,21 @@ const listUsers = async () =>{
         text: `
         SELECT name, lastname, email, id_user, rol_id FROM users 
         `,
-        values:[]
     }
     const {rows} = await db.query(query)
     return rows
 
 }
 
-const updateUser = async (id, {name, lastname, email, id_user, rol_id}) => {
+const updateRolUser = async (id, {rol_id}) => {
     const query = {
         text:`
         UPDATE users
-        SET name = $1, lastname = $2, email = $3, id_user = $4, rol_id = $5
-        WHERE id = $6 
+        SET rol_id = $1
+        WHERE id = $2 
         RETURNING id, name, lastname, email, id_user, rol_id
         `,
-        values:[name, lastname, email, id_user, rol_id, id]
+        values:[rol_id, id]
     }
     const {rows} = await db.query(query)
     const row = rows[0]
@@ -109,13 +121,39 @@ const userDelete = async (id) => {
     return rows[0]; 
 }
 
+const addTokenToBlacklist = async (token, expiresAt) => {
+    const query = {
+        text:`
+        INSERT INTO blacklist_tokens (token, expires_at)
+         VALUES ($1, $2)
+        `,
+        values: [token, expiresAt],
+    };
+    await db.query(query);
+};
+
+const isTokenBlacklisted = async (token) => {
+    const query = {
+        text:`
+        SELECT * FROM blacklist_tokens 
+        WHERE token = $1
+        `,
+        values: [token],
+    };
+    const { rows } = await db.query(query);
+    return rows.length > 0; // Devuelve true si el token está en la lista negra
+};
+
 export const UserModel = {
     create,
     findUserByEmail,
+    findUserByEmailSnPassword,
     verifySecurityAnswers,
     updatePassword,
     listUsers,
-    updateUser,
+    updateRolUser,
     compareIdUser,
-    userDelete
+    userDelete,
+    addTokenToBlacklist,
+    isTokenBlacklisted
 }

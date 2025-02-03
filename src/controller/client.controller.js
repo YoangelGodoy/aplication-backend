@@ -8,6 +8,20 @@ const createClient = async (req, res) => {
         if (!id || !name || !lastname  || !municipality_id || !phone) {
             return res.status(400).json({ ok: false, msg: "Missing required fields: name, lastname, phone, municipality_id" });
         }
+        // validar name
+        const valitedName = /^[A-Za-z]+$/
+        if(!valitedName.test(name)){
+            return res.status(400).json({ ok: false, msg: "Invalid characters name" });
+        } 
+        if(!valitedName.test(lastname)){
+            return res.status(400).json({ ok: false, msg: "Invalid characters lastname" });
+        } 
+        
+        // Validar que el campo phone contenga solo números
+        const phonePattern = /^[0-9]+$/; // Expresión regular para solo números
+        if (!phonePattern.test(phone)) {
+            return res.status(400).json({ ok: false, msg: "Phone number must contain only numbers." });
+        }
 
         const newDriver = await ClientModel.createClient({
             id,
@@ -73,6 +87,21 @@ const updateClient = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, lastname, municipality_id, phone } = req.body;
+
+        // validar name
+        const valitedName = /^[A-Za-z]+$/
+        if(!valitedName.test(name)){
+            return res.status(400).json({ ok: false, msg: "Invalid characters" });
+        } 
+        if(!valitedName.test(lastname)){
+            return res.status(400).json({ ok: false, msg: "Invalid characters" });
+        } 
+        
+         // Validar que el campo phone contenga solo números
+         const phonePattern = /^[0-9]+$/; // Expresión regular para solo números
+         if (!phonePattern.test(phone)) {
+             return res.status(400).json({ ok: false, msg: "Phone number must contain only numbers." });
+         }
 
         const updatedClient = await ClientModel.updateClient(id, {
             name,

@@ -3,27 +3,46 @@ import { DriverModel } from '../models/driver.model.js';
 // api/v1/driverCreate
 const createDriver = async (req, res) => {
     try {
-        const {id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver } = req.body;
-        console.log("aqui 1")
-        if (!id_driver || !name_driver || !lastname_driver || !phone || !fkid_municipality || !status_driver) {
-            return res.status(400).json({ ok: false, msg: "Missing required fields: name_driver, lastname_driver, phone, municipality_id, status_driver" });
+        const {id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license } = req.body;
+    
+        if (!id_driver || !name_driver || !lastname_driver || !phone || !fkid_municipality || !status_driver || !license) {
+            return res.status(400).json({ ok: false, msg: "Missing required fields: name_driver, lastname_driver, phone, municipality_id, status_driver, license" });
         }
-        console.log("aqui 2")
+        // validar name
+        const valitedName = /^[A-Za-z]+$/
+        if(!valitedName.test(name_driver)){
+            return res.status(400).json({ ok: false, msg: "Invalid characters name" });
+        } 
+        if(!valitedName.test(lastname_driver)){
+            return res.status(400).json({ ok: false, msg: "Invalid characters lastname" });
+        } 
         // Validar status
         const validStatuses = ['activo', 'inactivo'];
         if (!validStatuses.includes(status_driver)) {
             return res.status(400).json({ ok: false, msg: "Invalid status. Must be 'activo' or 'inactivo'" });
         }
-        console.log("aqui 3")
+   
+        const valitedLicense = ['4ta', '5ta'];
+        if(!valitedLicense.includes(license)){
+            return res.status(400).json({ ok: false, msg: "Invalid license. Must be '4ta' or '5ta'" });
+        }
+
+        // Validar que el campo phone contenga solo números
+        const phonePattern = /^[0-9]+$/; // Expresión regular para solo números
+        if (!phonePattern.test(phone)) {
+            return res.status(400).json({ ok: false, msg: "Phone number must contain only numbers." });
+        }
+        
         const newDriver = await DriverModel.createDriver({
             id_driver,
             name_driver,
             lastname_driver,
             phone,
             fkid_municipality,
-            status_driver
+            status_driver,
+            license
         });
-        console.log("aqui 4")
+    
         return res.status(201).json({ ok: true, msg: "Driver registered successfully", driver: newDriver });
     } catch (error) {
         console.log(error);
@@ -79,11 +98,25 @@ const listDrivers = async (req, res) => {
 const updateDriver = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name_driver, lastname_driver, phone, fkid_municipality, status_driver } = req.body;
+        const { name_driver, lastname_driver, phone, fkid_municipality, status_driver, license } = req.body;
+
+        // validar name
+        const valitedName = /^[A-Za-z]+$/
+        if(!valitedName.test(name_driver)){
+            return res.status(400).json({ ok: false, msg: "Invalid characters" });
+        } 
+        if(!valitedName.test(lastname_driver)){
+            return res.status(400).json({ ok: false, msg: "Invalid characters" });
+        } 
 
         // Validar status
         if (status_driver && !['activo', 'inactivo'].includes(status_driver)) {
             return res.status(400).json({ ok: false, msg: "Invalid status. Must be 'activo' or 'inactivo'" });
+        }
+        //validar licencia
+        const valitedLicense = ['4ta', '5ta'];
+        if(!valitedLicense.includes(license)){
+            return res.status(400).json({ ok: false, msg: "Invalid license. Must be '4ta' or '5ta'" });
         }
 
         const updatedDriver = await DriverModel.updateDriver(id, {
@@ -91,7 +124,8 @@ const updateDriver = async (req, res) => {
             lastname_driver,
             phone,
             fkid_municipality,
-            status_driver
+            status_driver,
+            license
         });
 
         if (!updatedDriver) {

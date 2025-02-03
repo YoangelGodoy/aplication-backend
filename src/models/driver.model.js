@@ -1,14 +1,14 @@
 import { db } from '../conection/conec.database.js';
 
 // Función para crear un nuevo conductor
-const createDriver = async ({ id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver }) => {
+const createDriver = async ({ id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license }) => {
     const query = {
         text: `
-        INSERT INTO driver (id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver
+        INSERT INTO driver (id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license
         `,
-        values: [id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver]
+        values: [id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license]
     };
     const { rows } = await db.query(query);
     return rows[0];
@@ -18,7 +18,7 @@ const createDriver = async ({ id_driver, name_driver, lastname_driver, phone, fk
 const findDriverById = async (id_driver) => {
     const query = {
         text: `
-        SELECT id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver FROM driver 
+        SELECT id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license FROM driver 
         WHERE id_driver = $1
         `,
         values: [id_driver]
@@ -31,7 +31,7 @@ const findDriverById = async (id_driver) => {
 const getAllDrivers = async () => {
     const query = {
         text: `
-        SELECT id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver FROM driver
+        SELECT id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license FROM driver
         `,
         values: []
     };
@@ -40,15 +40,15 @@ const getAllDrivers = async () => {
 };
 
 // Función para actualizar un conductor
-const updateDriver = async (id_driver, { name_driver, lastname_driver, phone, fkid_municipality, status_driver }) => {
+const updateDriver = async (id_driver, { name_driver, lastname_driver, phone, fkid_municipality, status_driver, license }) => {
     const query = {
         text: `
         UPDATE driver
-        SET name_driver = $1, lastname_driver = $2, phone = $3, fkid_municipality = $4, status_driver = $5
-        WHERE id_driver = $6
-        RETURNING id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver
+        SET name_driver = $1, lastname_driver = $2, phone = $3, fkid_municipality = $4, status_driver = $5, license = $6
+        WHERE id_driver = $7
+        RETURNING id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license
         `,
-        values: [name_driver, lastname_driver, phone, fkid_municipality, status_driver, id_driver]
+        values: [name_driver, lastname_driver, phone, fkid_municipality, status_driver, license, id_driver]
     };
     const { rows } = await db.query(query);
     return rows[0]; 
@@ -56,7 +56,6 @@ const updateDriver = async (id_driver, { name_driver, lastname_driver, phone, fk
 
 // Función para eliminar un conductor
 const deleteDriver = async (id_driver) => {
-    console.log("Deleting driver with id:", id_driver);
     const query = {
         text: `
         DELETE FROM driver
@@ -66,7 +65,6 @@ const deleteDriver = async (id_driver) => {
         values: [id_driver]
     };
     const { rows } = await db.query(query);
-    console.log("rows_delete:",rows[0])
     return rows[0]; 
 };
 

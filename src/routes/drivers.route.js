@@ -11,6 +11,6 @@ router.get('/drivers', DriverController.listDrivers); // Obtener todos los condu
 router.get('/driver/:id', DriverController.getDriver); // Obtener un conductor por ID
 router.post('/drivercreate', DriverController.createDriver);
 router.put('/driverUpdate/:id', DriverController.updateDriver); 
-router.delete('/driverdelete/:id', DriverController.deleteDriver);
+router.delete('/driverDelete/:id', DriverController.deleteDriver);
 
 export default router;

@@ -11,7 +11,16 @@ const register = async (req, res) => {
         if (!name||!lastname||!email||!password||!id_user||!rol_id ||!question1 ||!answer1 ||!question2 ||!answer2) {
             return res.status(400).json({ ok: false, msg: "Missing required fields: email, password, name, lastname..." })
         }
-        
+         // validar name
+         const valitedName = /^[A-Za-z]+$/
+         if(!valitedName.test(name)){
+             return res.status(400).json({ ok: false, msg: "Invalid characters name" });
+         } 
+         if(!valitedName.test(lastname)){
+             return res.status(400).json({ ok: false, msg: "Invalid characters lastname" });
+         } 
+         
+
         const compareIdUser = await UserModel.compareIdUser(id_user);
 
         if(compareIdUser){

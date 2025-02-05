@@ -1,14 +1,14 @@
 import {db} from '../conection/conec.database.js'
 import bcrypt from 'bcryptjs'
 
-const create = async ({name, lastname, email, password, id_user, rol_id, question1, answer1, question2, answer2}) => {
+const create = async ({name, lastname, email, password, id_user, rol_id, question1, answer1, question2, answer2, phone}) => {
     const query = {
         text:`
-        INSERT INTO users (name, lastname, email, password, id_user, rol_id, security_question_1, answer_1, security_question_2, answer_2)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        RETURNING name, lastname, email, id, id_user, rol_id, security_question_1, answer_1, security_question_2, answer_2
+        INSERT INTO users (name, lastname, email, password, id_user, rol_id, security_question_1, answer_1, security_question_2, answer_2, phone)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING name, lastname, email, id, id_user, rol_id, security_question_1, answer_1, security_question_2, answer_2, phone
         `,
-        values:[name, lastname, email, password, id_user, rol_id, question1, answer1, question2, answer2] 
+        values:[name, lastname, email, password, id_user, rol_id, question1, answer1, question2, answer2, phone] 
     }    
     const {rows} = await db.query(query)
     return rows[0]
@@ -17,7 +17,7 @@ const create = async ({name, lastname, email, password, id_user, rol_id, questio
 const findUserByEmail = async (email) => {
     const query = {
     text:`
-    SELECT id, name, lastname, email, password, id_user, rol_id FROM users 
+    SELECT id, name, lastname, email, password, id_user, rol_id, phone FROM users 
     WHERE email = $1
     `,
     values:[email]
@@ -30,7 +30,7 @@ const findUserByEmail = async (email) => {
 const findUserByEmailSnPassword = async (email) => {
     const query = {
     text:`
-    SELECT id, name, lastname, email, id_user, rol_id FROM users 
+    SELECT id, name, lastname, email, id_user, rol_id, phone FROM users 
     WHERE email = $1
     `,
     values:[email]
@@ -72,7 +72,7 @@ const updatePassword = async ({email, newPassword}) => {
 const compareIdUser = async (id_user) => {
     const query = {
     text:`
-    SELECT id, name, lastname, email, id_user, rol_id FROM users 
+    SELECT id, name, lastname, email, id_user, rol_id, phone FROM users 
     WHERE id_user = $1
     `,
     values:[id_user]
@@ -86,7 +86,7 @@ const compareIdUser = async (id_user) => {
 const listUsers = async () =>{
     const query = {
         text: `
-        SELECT name, lastname, email, id_user, rol_id FROM users 
+        SELECT name, lastname, email, id_user, rol_id, phone, id FROM users 
         `,
     }
     const {rows} = await db.query(query)
@@ -94,20 +94,21 @@ const listUsers = async () =>{
 
 }
 
-const updateRolUser = async (id, {rol_id}) => {
+const updateUser = async (id, { name, lastname, email, id_user, rol_id, phone}) => {
     const query = {
-        text:`
+        text: `
         UPDATE users
-        SET rol_id = $1
-        WHERE id = $2 
-        RETURNING id, name, lastname, email, id_user, rol_id
+        SET name = $1, lastname = $2, email = $3, id_user = $4, rol_id = $5, phone = $6
+        WHERE id = $7
+        RETURNING id, name, lastname, email, id_user, rol_id, phone
         `,
-        values:[rol_id, id]
-    }
-    const {rows} = await db.query(query)
-    const row = rows[0]
-    return row
-}
+        values: [name, lastname, email, id_user, rol_id, phone, id]
+    };
+    const { rows } = await db.query(query);
+    const row = rows[0];
+    return row;
+};
+
 const userDelete = async (id) => {
     const query = {
         text:`
@@ -144,6 +145,31 @@ const isTokenBlacklisted = async (token) => {
     return rows.length > 0; // Devuelve true si el token está en la lista negra
 };
 
+const saveLoginToken = async (id, token, expiration) => {
+    const query = {
+      text: 'UPDATE users SET token = $1, login_token_expiration = $2 WHERE id = $3',
+      values: [token, expiration, id]
+    };
+    await db.query(query);
+  };
+  
+  const findUserByLoginToken = async (token) => {
+    const query = {
+      text: 'SELECT * FROM users WHERE token = $1',
+      values: [token]
+    };
+    const { rows } = await db.query(query);
+    return rows[0];
+  };
+  
+  const clearLoginToken = async (id) => {
+    const query = {
+      text: 'UPDATE users SET token = NULL, login_token_expiration = NULL WHERE id = $1',
+      values: [id]
+    };
+    await db.query(query);
+  };
+
 export const UserModel = {
     create,
     findUserByEmail,
@@ -151,9 +177,12 @@ export const UserModel = {
     verifySecurityAnswers,
     updatePassword,
     listUsers,
-    updateRolUser,
+    updateUser,
     compareIdUser,
     userDelete,
     addTokenToBlacklist,
-    isTokenBlacklisted
+    isTokenBlacklisted,
+    saveLoginToken,
+    findUserByLoginToken,
+    clearLoginToken
 }

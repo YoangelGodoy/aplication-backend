@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express';
+import cors from 'cors';
 import userRouter from './src/routes/user.route.js'
 import TowtruckRouter from './src/routes/towTruck.route.js'
 import DriversRouter from './src/routes/drivers.route.js'
@@ -13,7 +14,13 @@ const app = express();
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
+// Configurar CORS
+app.use(
+    cors({
+      origin: "http://localhost:3000", // Reemplaza con la URL de tu frontend
+      credentials: true,
+    }),
+  )
 app.use('/api/v1', userRouter, TowtruckRouter, DriversRouter, ClientsRouter, DriverPayment, TowingService, ClientPayment, invoice);
 
 const PORT = process.env.PORT || 4000;

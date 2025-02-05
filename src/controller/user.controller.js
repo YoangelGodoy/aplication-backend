@@ -6,9 +6,9 @@ import jwt from 'jsonwebtoken';
 const register = async (req, res) => {
     try {
         console.log(req.body)
-        const {name, lastname, email, password, id_user, rol_id, question1, answer1, question2, answer2} = req.body
+        const {name, lastname, email, password, id_user, rol_id, question1, answer1, question2, answer2, phone} = req.body
 
-        if (!name||!lastname||!email||!password||!id_user||!rol_id ||!question1 ||!answer1 ||!question2 ||!answer2) {
+        if (!name||!lastname||!email||!password||!id_user||!rol_id ||!question1 ||!answer1 ||!question2 ||!answer2 ||!phone) {
             return res.status(400).json({ ok: false, msg: "Missing required fields: email, password, name, lastname..." })
         }
          // validar name
@@ -38,23 +38,11 @@ const register = async (req, res) => {
         const hashedAnswer1 = await bcryptjs.hash(answer1, 10);
         const hashedAnswer2 = await bcryptjs.hash(answer2, 10);
 
-        const userToCreate = {name, lastname, email, password: hashedPassword, id_user, rol_id, question1, answer1:hashedAnswer1, question2, answer2:hashedAnswer2}
+        const userToCreate = {name, lastname, email, password: hashedPassword, id_user, rol_id, question1, answer1:hashedAnswer1, question2, answer2:hashedAnswer2, phone}
         const newUser = await UserModel.create(userToCreate);
         
-        
-        const token = jwt.sign(
-            { 
-                id: userToCreate.id,
-                email: userToCreate.email,
-                name: userToCreate.name,
-                lastname: userToCreate.lastname,
-                rol_id: userToCreate.rol_id 
-            },
-            process.env.WORD_SECRET,
-            { expiresIn: '1h' }
-        );
 
-        return res.status(201).json({ok:true, message:"registro exitoso", token: token});
+        return res.status(201).json({ok:true, message:"registro exitoso"});
     }catch (error) {
         console.log(error);
         return res.status(500).json({ 
@@ -104,6 +92,7 @@ const login = async (req, res) => {
         }
 
         const userExist = await UserModel.findUserByEmail(email)
+    
         if (!userExist){
             return res.status(404).json({ ok: false, msg: "User not found"})
         }
@@ -126,7 +115,10 @@ const login = async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        return res.status(200).json({ok:true, msg: token});
+        const expiration = new Date(Date.now() + 3600000); // 1 hour from now
+        await UserModel.saveLoginToken(userExist.id, token, expiration);
+
+        return res.status(200).json({ok:true, token: token});
     }
     catch (error) {
         console.log(error);
@@ -162,16 +154,12 @@ const logoutUser = async (req, res) => {
     try {
         const token = req.header('Authorization').replace('Bearer ', '');
 
-        if (!token) {
-            return res.status(401).json({ ok: false, message: "Token not provided" });
+        const user = await UserModel.findUserByLoginToken(token);
+        if (!user) {
+            return res.status(403).json({ message: "Invalid token" });
         }
 
-        const decoded = jwt.verify(token, process.env.WORD_SECRET);
-        console.log("decoded:", decoded)
-        const expiresAt = new Date(decoded.exp * 1000); // Convertir a milisegundos
-
-        // Agregar el token a la lista negra
-        const add = await UserModel.addTokenToBlacklist(token, expiresAt);
+        await UserModel.clearLoginToken(user.id);
 
         return res.json({ ok: true, message: "Sesión cerrada exitosamente" });
     } catch (error) {
@@ -180,17 +168,20 @@ const logoutUser = async (req, res) => {
     }
 }
  
-const userRolUpdate = async (req, res)=>{
+const userUpdate = async (req, res)=>{
     try{
         const {id} = req.params;
-        const {name, lastname, email, id_user, rol_id} = req.body;
-        console.log("id:",id)
-        const updateduser = await UserModel.updateRolUser(id, {
+        const {name, lastname, email, id_user, rol_id, phone} = req.body;
+        if (!name||!lastname||!email||!id_user||!rol_id||!phone) {
+            return res.status(400).json({ ok: false, msg: "Missing required fields: email, name, lastname..." })
+        }
+        const updateduser = await UserModel.updateUser(id, {
             name,
             lastname,
             email,
             id_user,
-            rol_id
+            rol_id,
+            phone
         });
         if(!updateduser){
             return res.status(404).json({ok: false, msg: "user not found"})
@@ -270,6 +261,6 @@ export const UserController = {
     getUser,
     logoutUser,
     usersList,
-    userRolUpdate,
+    userUpdate,
     userDelete
 }

@@ -75,6 +75,22 @@ const listTowTrucks = async (req, res) => {
     }
 }
 
+const listModels = async (req, res) => {
+    try {
+        const models = await towTruckModel.getAllModels();
+        return res.json({
+            ok: true,
+            trucks: models
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            message: "Error retrieving models"
+        });
+    }
+}
+
 // /api/v1/towTruckUpadte/:id
 const updateTowTruck = async (req, res) => {
     try {
@@ -129,5 +145,6 @@ export const TowTruckController = {
     getTowTruck,
     listTowTrucks,
     updateTowTruck,
-    deleteTowTruck
+    deleteTowTruck,
+    listModels
 }

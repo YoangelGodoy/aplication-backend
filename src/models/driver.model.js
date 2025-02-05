@@ -31,7 +31,7 @@ const findDriverById = async (id_driver) => {
 const getAllDrivers = async () => {
     const query = {
         text: `
-        SELECT id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license FROM driver
+        SELECT id_driver, name_driver, lastname_driver, phone, fkid_municipality, status_driver, license, created_at FROM driver
         `,
         values: []
     };
@@ -67,11 +67,34 @@ const deleteDriver = async (id_driver) => {
     const { rows } = await db.query(query);
     return rows[0]; 
 };
+const getAllStates = async () => {
+    const query = {
+        text: `
+        SELECT * FROM state
+        `,
+        values: []
+    };
+    const { rows } = await db.query(query);
+    return rows; 
+};
+
+const getAllMunicipality = async () => {
+    const query = {
+        text: `
+        SELECT * FROM municipality
+        `,
+        values: []
+    };
+    const { rows } = await db.query(query);
+    return rows; 
+};
 
 export const DriverModel = {
     createDriver,
     findDriverById,
     getAllDrivers,
     updateDriver,
-    deleteDriver
+    deleteDriver,
+    getAllStates,
+    getAllMunicipality
 };

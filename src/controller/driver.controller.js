@@ -162,10 +162,44 @@ const deleteDriver = async (req, res) => {
     }
 }
 
+const listStates = async (req, res) => {
+    try {
+        const states = await DriverModel.getAllStates();
+        return res.json({
+            ok: true,
+            states
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            message: "Error retrieving states"
+        });
+    }
+}
+
+const listMunicipality = async (req, res) => {
+    try {
+        const municipality = await DriverModel.getAllMunicipality();
+        return res.json({
+            ok: true,
+            municipality
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            message: "Error retrieving municipality"
+        });
+    }
+}
+
 export const DriverController = {
     createDriver,
     getDriver,
     listDrivers,
     updateDriver,
-    deleteDriver
+    deleteDriver,
+    listStates,
+    listMunicipality
 };

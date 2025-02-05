@@ -31,7 +31,7 @@ const findClientById = async (id) => {
 const getAllClients = async () => {
     const query = {
         text: `
-        SELECT id, name, lastname, municipality_id, phone FROM client
+        SELECT id, name, lastname, municipality_id, phone, created_at FROM client
         `,
         values: []
     };

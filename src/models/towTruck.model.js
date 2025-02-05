@@ -31,7 +31,7 @@ const findTowTruckById = async (id) => {
 const getAllTowTruck = async () => {
     const query = {
         text: `
-        SELECT id, model_id, status, type FROM tow_truck
+        SELECT id, model_id, status, type, created_at FROM tow_truck
         `,
         values: []
     };
@@ -68,11 +68,22 @@ const deleteTowTruck = async (id) => {
     console.log("rows_delete:",rows[0])
     return rows[0]; 
 };
-
+// Función para obtener todos los registros de grúas
+const getAllModels = async () => {
+    const query = {
+        text: `
+        SELECT * FROM model
+        `,
+        values: []
+    };
+    const { rows } = await db.query(query);
+    return rows; 
+};
 export const towTruckModel = {
     createTowTruck,
     findTowTruckById,
     getAllTowTruck,
     updateTowTruck,
-    deleteTowTruck
+    deleteTowTruck,
+    getAllModels
 };
